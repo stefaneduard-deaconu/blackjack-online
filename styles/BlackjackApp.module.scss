@@ -1,0 +1,64 @@
+// helper classes for our application
+.primary {
+  color: var(--primary);
+}
+
+//The navigation
+.nav {
+  display: flex;
+  justify-content: center;
+
+  height: 3rem;
+  font-size: 2rem;
+
+  > .logo {
+
+  }
+
+  > a {
+
+  }
+}
+
+//A page's particular content
+.main {
+  min-height: calc(calc(100vh - 3rem) + 1rem); // 100vh - 3rem for nav, +1rem for footer decoration
+}
+
+// The footer which shows up on all pages
+.footer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: .5rem;
+
+  .footerHr {
+    position: absolute;
+    margin: 0;
+    width: 95%;
+    height: 2px;
+    border: none;
+    background-color: var(--primary);
+    top: 0;
+
+    &:before {
+      content: "";
+      width: .5rem;
+      height: .5rem;
+      background: var(--primary);
+      display: inline-block;
+      border: var(--primary);
+      position: absolute;
+      top: -0.25rem;
+      left: 50%;
+      transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+    }
+  }
+
+  font-size: 1.2rem;
+  background-color: var(--light);
+  padding: 1.5rem;
+  text-align: center;
+}
