@@ -7,20 +7,24 @@ const HomeSections = () => {
         {
             title: 'Play a game',
             btnText: 'Play',
-            imgSrc: "/section-play.jpg"
+            imgSrc: "/section-play.jpg",
+            origWidth: 1573,
+            origHeight: 1069
         },
 
         {
             title: 'See your stats',
             btnText: 'Play',
-            imgSrc: "/section-stats.png"
+            imgSrc: "/section-stats.png",
+            origWidth: 3000,
+            origHeight: 1600
         },
 
     ]
     return (
         <div className={styles.sections}>
             {
-                sections.map(data => <HomeSection {...data} />)
+                sections.map((data, idx) => <HomeSection key={idx} {...data} />)
             }
         </div>
     )

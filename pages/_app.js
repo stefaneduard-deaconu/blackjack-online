@@ -2,6 +2,7 @@ import appStyles from '../styles/BlackjackApp.module.scss'
 import '../styles/globals.scss'
 
 import Head from "next/head";
+import Link from "next/link";
 
 
 
@@ -16,7 +17,7 @@ function BlackjackApp({Component, pageProps}) {
                 <title>Blackjack 2.0</title>
             </Head>
             <nav className={appStyles.nav}>
-                <a href="/">Home</a>
+                <Link href="/">Home</Link>
             </nav>
             <main className={appStyles.main}>
                 <Component {...pageProps} />

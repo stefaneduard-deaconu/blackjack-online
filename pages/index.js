@@ -20,7 +20,7 @@ export default function Home() {
             <div className="greetings">
                 <h1>Hello, <span className={appStyles.primary}>{playerName}</span></h1>
                 <p>
-                    Let's have some fun!
+                    Let&apos;s have some fun!
                 </p>
             </div>
 
