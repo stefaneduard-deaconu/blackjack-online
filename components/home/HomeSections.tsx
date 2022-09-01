@@ -7,14 +7,16 @@ const HomeSections = () => {
         {
             title: 'Play a game',
             btnText: 'Play',
-            imgSrc: "/section-play.jpg",
+            btnHref: '/game',
+            imgSrc: "/section-game.jpg",
             origWidth: 1573,
             origHeight: 1069
         },
 
         {
             title: 'See your stats',
-            btnText: 'Play',
+            btnText: 'Stats',
+            btnHref: '/stats',
             imgSrc: "/section-stats.png",
             origWidth: 3000,
             origHeight: 1600

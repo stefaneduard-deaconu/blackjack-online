@@ -9,9 +9,12 @@
     .section {
 
       display: inline-flex;
+      padding: 1rem;
+      gap: 1rem;
+      justify-content: space-between;
       margin: 3rem;
 
-      width: 45vw;
+      width: 50vw;
 
       box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
       border: 1px solid var(--secondary);
@@ -23,8 +26,6 @@
 
         justify-content: center;
         align-items: center;
-
-        margin: 0 1rem 0 0;
 
         img {
           max-width: 20vw;

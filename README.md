@@ -10,3 +10,10 @@ The current project is open sourced, and it's development can be followed at [tr
 
 1. Always build locally before pushing
 2. Using aporstrophe in nextJS a.k.a. `& apos ;`
+
+
+## Original Images Links:
+
+1. The poker table texture
+   https://pixabay.com/photos/bet-blackjack-bridge-cards-casino-6299138/
+2. 
