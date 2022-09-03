@@ -5,10 +5,10 @@ const HomeSections = () => {
 
     let sections = [
         {
-            title: 'Play a game',
+            title: 'Play a match',
             btnText: 'Play',
-            btnHref: '/game',
-            imgSrc: "/section-game.jpg",
+            btnHref: '/match',
+            imgSrc: "/section-match.jpg",
             origWidth: 1573,
             origHeight: 1069
         },

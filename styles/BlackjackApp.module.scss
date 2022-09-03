@@ -7,16 +7,26 @@
 .nav {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 3vw;
 
-  height: 3rem;
+  height: 4rem;
   font-size: 2rem;
+
+
 
   > .logo {
 
   }
 
   > a {
+    height: 3rem;
 
+    &:hover {
+      //transform: scale(1.1);
+      border: 3px dotted var(--primary);
+      border-width: 0 0 3px 0;
+    }
   }
 }
 
