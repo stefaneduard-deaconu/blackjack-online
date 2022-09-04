@@ -1,3 +1,8 @@
+# ignore the .idea settings, because it sometimes messes with the merges
+# file: ~/.gitignore_global
+.DS_Store
+.idea
+
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
