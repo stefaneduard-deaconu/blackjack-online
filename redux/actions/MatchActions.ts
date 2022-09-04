@@ -1,6 +1,6 @@
 import {Dispatch} from "redux";
 import {
-    MATCH_START_GAME, MATCH_DRAW, MATCH_BET, MATCH_DOUBLE_HAND,
+    MATCH_START_GAME, MATCH_HIT, MATCH_DOUBLE, MATCH_STAND,
     MatchDispatchTypes
 } from "./MatchActionTypes";
 

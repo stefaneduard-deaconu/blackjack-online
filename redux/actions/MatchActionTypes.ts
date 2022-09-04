@@ -1,38 +1,64 @@
-export const MATCH_START_GAME = "MATCH_START_GAME"; // the cards get shuffled and the dealer deals two to each person
-export const MATCH_DRAW = "MATCH_DRAW"; // a person (1 or 2 or 3=dealer?) is going to draw one card, with NO BET
-export const MATCH_BET = "MATCH_BET"; // a person (1 or 2 or 3=dealer?) is going to double the BET and draw a card
-export const MATCH_DOUBLE_HAND = "MATCH_DOUBLE_HAND"; // a person (1,2,3) ir he has two identical cards, is going to turn them into two hands :)
+export enum MatchOption {
+    MATCH_START_GAME = "MATCH_START_GAME",
+    MATCH_HIT = "MATCH_HIT",
+    MATCH_STAND = "MATCH_STAND",
+    MATCH_SPLIT = "MATCH_SPLIT",
+    MATCH_DOUBLE = "MATCH_BET",
+    MATCH_SURRENDER = "MATCH_SURRENDER",
+    MATCH_INSURANCE = "MATCH_INSURANCE",
+    MATCH_DEALERS_TURN = "MATCH_DEALERS_TURN",
+}
 
-enum CardHouse {
+export enum CardHouse {
     HOUSE_CLUB = '♣',
     HOUSE_HEART = '♥',
     HOUSE_DIAMOND = '♦',
     HOUSE_SPADE = '♠'
 }
 
+export type CardNumber = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
 export type Card = {
     house: CardHouse,
-    number: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
+    number: CardNumber
 }
 export type DeckType = {
     cards: Card[]
 }
+
 // players' data:
+
+export enum PlayerOption {
+    NONE,
+    STAND,
+    HIT,
+    DOUBLE,
+    INSURANCE,
+    SURRENDER,
+    SPLIT,
+    BLACKJACK,
+    BUST
+}
+
 export type CurrentPlayerType = 0 | 1 | 2
+
 export type PlayerType = {
     hands: Card[][],  // each player will have multiple cards
-    bet: number
+    bet: number,
+    remainingCash: number;
+    lastOption: PlayerOption,
+    isChoosingFirstOption: boolean,
+    splitByCard?: Card // TODO after first SPLIT, you'll have to take this into account
 }
+
 // The second card will be face down...
 export type DealerType = {
-    firstCard: Card,
-    secondCard: Card // will be face down :)
+    firstCard?: Card,
+    secondCard?: Card // will be face down :)
     fullHand: Card[]  // the hand he deals to himself at the end of round
     // the dealer will keep going until  reaching the maximum number
     // TODO other rules?
 }
 
-export type MatchSubtype2 = {}
 // payload types:
 export type MatchType = {
     deck: Card[],
@@ -40,33 +66,57 @@ export type MatchType = {
     player2: PlayerType,
     dealer: DealerType,
     currentPlayer: CurrentPlayerType,
-    currentBet: number
+    currentBet: number,
+    currentStartingBet: number,
 }
 
 // individual action types:
 
 
 export interface MatchStartGame {
-    type: typeof MATCH_START_GAME
-    // take into account doubling the hand when starting the grame :)
+    type: MatchOption
+    // take into account doubling the hand when starting the game :)
 }
 
-export interface MatchDraw {
-    type: typeof MATCH_DRAW,
-    payload: number // which hand they draw for, because hands can be split when the first cards are equal
+
+export interface MatchHit {
+    // Draw another card for one of the hands
+    type: MatchOption
+    payload: { hand: number }
 }
 
-export interface MatchBet {
-    type: typeof MATCH_BET,
-    payload: number // raise the bet with a number of dollars
+export interface MatchStand {
+    // Do nothing and keep the current hands
+    type: MatchOption
+    payload: { hand: number }
 }
 
-export interface MatchDoubleHand {
-    type: typeof MATCH_DOUBLE_HAND,
+export interface MatchDouble {
+    // double the bet for one of the hands and draw the last card for that hand
+    type: MatchOption
+    payload: { hand: number }
+}
+
+export interface MatchSplit {
+    type: MatchOption
+}
+
+export interface MatchSurrender {
+    // Give up on the current cards, and keep 50% of the bets
+    type: MatchOption
+}
+
+export interface MatchInsurance {
+    type: MatchOption
+    // WHEN THE DEALER HAS AN Ace, the player bets whether the Dealer has Blackjack. And they gan get back 250%
+}
+
+export interface MatchDealersTurn {
+    type: MatchOption
 }
 
 
 // dispatch types:
 
-export type MatchDispatchTypes = MatchStartGame | MatchDraw | MatchBet | MatchDoubleHand;
+export type MatchDispatchTypes = MatchStartGame | MatchHit | MatchDouble | MatchSplit;
 

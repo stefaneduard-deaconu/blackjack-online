@@ -8,23 +8,91 @@ import Image from "next/image";
 import {useDispatch, useSelector} from "react-redux";
 import RootStore from '../../redux/store'
 
-import {useState} from "react";
+import {useState, useEffect} from "react";
+
+// connect to io
+import io from 'socket.io-client'
+import {
+    MatchType,
+    PlayerOption, MatchOption,
+    PlayerType
+} from "../../redux/actions/MatchActionTypes";
+import {
+    isBlackjack,
+    isOptionAvailable,
+    PLAYER_OPTION_KEYS,
+    playerHasBUST,
+    playerHasSplit
+} from "../../redux/reducers/matchReducer";
+
+const socket = io.connect("http://localhost:3001")
+
 
 export default function Game() {
 
-    // the logic for the application:
-    /*
-    The state will contain data about the current deck, the players (decks, hands, bets)
-    Depending on the state, the options showed will also change..
-     */
+
+    // *** code for the joining a game, TODO turn it into a custom hook ***
+
+    const [joinedMatch, setJoinedMatch] = useState('') // TODO also store to localHost :)
+
+
+    const [option, setOption] = useState<PlayerOption>(PlayerOption.NONE) // TODO also store to localHost :)
+    const [rivalOption, setRivalOption] = useState<PlayerOption>(PlayerOption.NONE) // TODO also store to localHost :)
+
+
+    const [isWaitingPlayer, setWaitingPlayer] = useState<boolean>();
+
+    useEffect(() => {
+        socket.on('joined_room', (data) => {
+            console.log(data)
+
+            setJoinedMatch(data.joinedId)
+            // TODO what will happend when refreshing the browser? :(
+
+            setWaitingPlayer(data.waiting)
+        })
+        socket.on('receive_rival_option', (data) => {
+            console.log('receive_rival_option:', data)
+            setRivalOption(data.option)
+        })
+    }, [socket]) // the callback reruns for each emitted event
+
+    const joinMatch = () => {
+        socket.emit('join_room')
+        setWaitingPlayer(true)
+    }
+    const setAndSendOption = (opt: PlayerOption) => {
+        socket.emit('send_option', {
+            joinedId: joinedMatch,
+            option: opt
+        })
+        // also run option for our user
+        setOption(opt)
+    }
+
+    // added event before unloading, so that the player will have clarity:
+    useEffect(() => {
+        window.onbeforeunload = (e) => {
+            e.preventDefault()
+            return 'If you leave, the game ends and the opponent wins!'
+        }
+    }, [])
+
+
+    // *** code for the matchDispatcher ***
 
 
     // init dispatch
     const dispatch = useDispatch();
     // select the match state
-    const pokemonState = useSelector((state: RootStore) => state.pokemon);
-
-    // component states:
+    const matchState: MatchType = useSelector((state: RootStore) => state.match.match);
+    const currentPlayer: PlayerType = useSelector(
+        (state: RootStore) => (
+            state.match.currentPlayer == 0
+                ? state.match.player1
+                : state.match.player2
+        )
+    );
 
     // event handlers:
 
@@ -33,188 +101,320 @@ export default function Game() {
     //     dispatch(GetPokemon(pokemonName))
     // }
 
+    // useEffect
 
-    // implement simple visuals, such as the table, the players, the cards, the dealer etc
-    // TODO download cards from https://www.flaticon.com/free-icon/clubs_7806988?term=playing%20card&page=1&position=1&page=1&position=1&related_id=7806988&origin=search
-    return <div className={styles.container}>
-        <Head>
-            <title>Match ♦️ Blackjack 2.0 </title>
-            <meta name="description" content="Play Blackjack with your best friend"/>
-        </Head>
+    useEffect(() => {
+        // when the game starts, we will dispatch starting the game:
+        if (joinedMatch) {
+            dispatch({
+                type: MatchOption.MATCH_START_GAME,
+            })
+        }
+    }, [joinedMatch])
+
+    useEffect(() => {
+        console.log('MATCH STATE: ', matchState)
+    })
+
+
+    return (
         <div className={styles.container}>
-            <div className={styles.table}>
-                <div className={styles.dealer}>
-
-                </div>
-                <div className={styles.players}>
-                    <div className={`${styles.player} ${styles.p1}`}>
-                        {/*TODO transform this into a Hand component*/}
-                        <div className={styles.hand}>
-                            <span className={styles.card}>
-                                <Image
-                                    src={'/textures/cards/clubs9.svg'}
-                                    width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                        </div>
-                        <div className={styles.hand}>
-                            <span className={styles.card}>
-                                <Image
-                                    src={'/textures/cards/clubs9.svg'}
-                                    width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                            <span className={styles.card}>
-                                <Image className={styles.card}
-                                       src={'/textures/cards/clubs9.svg'}
-                                       width={'100%'} height={'100%'}
-                                >
-                                </Image>
-                            </span>
-                        </div>
-                        <div className={styles.bet}>
-
-                            <div className={styles.betValue}>
-                                200$
-                            </div>
-                            <div className={styles.betImage}>
-                                <Image
-                                    src={'/textures/poker-chip.png'}
-                                    width={'100%'}
-                                    height={'100%'}
-                                >
-
-                                </Image>
-                            </div>
+            {
+                isWaitingPlayer ? (
+                    <div className={styles.loading}>
+                        Finding a worthy opponent..
+                        {/*// https://www.flaticon.com/free-icon/loading_189768?term=loading&page=1&position=5&page=1&position=5&related_id=189768&origin=search*/}
+                        <div className={styles.image}>
+                            <Image src={'/textures/loading.png'} width={32} height={32}/>
                         </div>
                     </div>
-                    <div className={`${styles.player} ${styles.p2}`}>
+                ) : (
+                    joinedMatch ? (
+                        <>
+                            <div className={styles.game}>
+                                <h1>Match#{joinedMatch}</h1>
+                                <hr/>
+                                <p>Our option: {option}</p>
+                                <p>Their option: {rivalOption}</p>
 
-                    </div>
-                </div>
-            </div>
+                                <ul type={'none'}>
+                                    {/* TODO add filtering, based on whether the option is available.. so we need to store whether the player*/}
+                                    {/*  is making the first move now*/}
+                                    <h2>Options for player {matchState.currentPlayer}</h2>
+
+                                    {/*options:*/}
+
+                                    {/* TODO list all hands:*/}
+                                    {
+                                        new Array(currentPlayer?.hands.length)
+                                            .fill(0)
+                                            .map((_, index) => <button
+                                                    onClick={() => dispatch(
+                                                        {
+                                                            type: MatchOption.MATCH_HIT,
+                                                            payload: {
+                                                                hand: index
+                                                            }
+                                                        }
+                                                    )}
+                                                >
+                                                    HIT (hand {index})
+                                                </button>
+                                            )
+                                    }
+
+
+                                    <button onClick={() => dispatch(
+                                        {
+                                            type: MatchOption.MATCH_STAND,
+                                            payload: matchState.currentPlayer
+                                        }
+                                    )}>
+                                        Stand
+                                    </button>
+
+                                    <button onClick={() => dispatch(
+                                        {
+                                            type: MatchOption.MATCH_DOUBLE
+                                        }
+                                    )}>
+                                        Double
+                                    </button>
+
+                                    {/*TODO a better way, but currently it does not work.*/}
+                                    {/*  because we would need to create a way to dynamically call the dispatch*/}
+                                    {/*{*/}
+                                    {/*    PLAYER_OPTION_KEYS*/}
+                                    {/*        .filter(option => isOptionAvailable(option, currentPlayer))*/}
+                                    {/*        .map(*/}
+                                    {/*            label => <li>*/}
+                                    {/*                <button onClick={() => setAndSendOption(label)}>{label}</button>*/}
+                                    {/*            </li>*/}
+                                    {/*        )*/}
+                                    {/*}*/}
+                                </ul>
+                            </div>
+
+
+                            {/*section for showing the cards*/}
+
+                            <div style={{fontSize: '1.1rem'}}>
+                                <p>Current bet={matchState.currentBet}</p>
+
+                                <div
+                                    style={{color: ([PlayerOption.SURRENDER, PlayerOption.BUST].includes(matchState.player1.lastOption) ? 'grey' : 'black')}}>
+
+                                    <h2>Player 0 (bet={matchState.player1.bet})</h2>
+                                    <ul>
+                                        {
+                                            matchState.player1.hands.map((hand) => <li>
+                                                {hand.map(card => <li>{card.house} {card.number}</li>)}
+                                            </li>)
+                                        }
+                                    </ul>
+                                </div>
+                                <div
+                                    style={{color: ([PlayerOption.SURRENDER, PlayerOption.BUST].includes(matchState.player2.lastOption) ? 'grey' : 'black')}}>
+
+                                    <h2>Player 1 (bet={matchState.player2.bet})</h2>
+                                    <ul>
+                                        {
+                                            matchState.player2.hands.map((hand) => <li>
+                                                {hand.map(card => <li>{card?.house} {card?.number}</li>)}
+                                            </li>)
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h2>Dealer</h2>
+                                    <ul>
+                                        <li>
+                                            {matchState.dealer.firstCard?.house} {matchState.dealer.firstCard?.number}
+                                        </li>
+                                        <li>
+                                            {/*{matchState.dealer.secondCard?.house} {matchState.dealer.secondCard?.number}*/}
+                                            ?? ??
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </>
+
+                    ) : (
+                        <>
+                            <div className={styles.playButtonContainer}>
+                                <button className={styles.button} onClick={joinMatch}>
+                                    <span className={styles.span}>
+                                        Play
+                                    </span>
+                                </button>
+                            </div>
+                        </>
+                    )
+                )
+            }
+
+
         </div>
-    </div>
+    )
 
 
+    // // TODO download all cards from https://www.flaticon.com/free-icon/clubs_7806988?term=playing%20card&page=1&position=1&page=1&position=1&related_id=7806988&origin=search
+
+    // better code for showing the dealer and players' hands:
+
+    // return <div className={styles.container}>
+    //     <Head>
+    //         <title>Match ♦️ Blackjack 2.0 </title>
+    //         <meta name="description" content="Play Blackjack with your best friend"/>
+    //     </Head>
+    //     <div className={styles.container}>
+    //         <div className={styles.table}>
+    //             <div className={styles.dealer}>
     //
-    // // init dispatch
-    // const dispatch = useDispatch();
-    // // select the match state
-    // const pokemonState = useSelector((state: RootStore) => state.pokemon);
+    //             </div>
+    //             <div className={styles.players}>
+    //                 <div className={`${styles.player} ${styles.p1}`}>
+    //                     {/*TODO transform this into a Hand component*/}
+    //                     <div className={styles.hand}>
+    //                         <span className={styles.card}>
+    //                             <Image
+    //                                 src={'/textures/cards/clubs9.svg'}
+    //                                 width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                     </div>
+    //                     <div className={styles.hand}>
+    //                         <span className={styles.card}>
+    //                             <Image
+    //                                 src={'/textures/cards/clubs9.svg'}
+    //                                 width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                         <span className={styles.card}>
+    //                             <Image className={styles.card}
+    //                                    src={'/textures/cards/clubs9.svg'}
+    //                                    width={'100%'} height={'100%'}
+    //                             >
+    //                             </Image>
+    //                         </span>
+    //                     </div>
+    //                     <div className={styles.bet}>
     //
-    // // input state:
-    // const [pokemonName, setPokemonName] = useState('')
+    //                         <div className={styles.betValue}>
+    //                             200$
+    //                         </div>
+    //                         <div className={styles.betImage}>
+    //                             <Image
+    //                                 src={'/textures/poker-chip.png'}
+    //                                 width={'100%'}
+    //                                 height={'100%'}
+    //                             >
     //
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setPokemonName(e.target.value)
+    //                             </Image>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //                 <div className={`${styles.player} ${styles.p2}`}>
     //
-    // // TODO example of using an Action
-    // const handleSubmit = () => {
-    //     dispatch(GetPokemon(pokemonName))
-    // }
-    //
-    // return (
-    //     <div className={'App'}>
-    //         <input type="text" onChange={handleChange}/>
-    //         <button onClick={handleSubmit}>Search</button>
-    //
-    //         <div>
-    //             {JSON.stringify(pokemonState)}
+    //                 </div>
+    //             </div>
     //         </div>
     //     </div>
-    // )
+    // </div>
 
 }
