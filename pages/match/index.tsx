@@ -15,7 +15,17 @@ import {
     PlayerType
 } from "../../redux/actions/MatchActionTypes";
 
-const socket = io("http://localhost:3001", {transports: ["websocket"]})
+import {PROD_API_URL, DEV_API_URL} from "../../config/index.js";
+
+let socket;
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    socket = io(DEV_API_URL, {transports: ["websocket"]})
+console.log(DEV_API_URL)
+} else {
+    socket = io(PROD_API_URL, {transports: ["websocket"]})
+console.log(PROD_API_URL)
+
+}
 
 
 export default function Game() {
