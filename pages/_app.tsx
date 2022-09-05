@@ -4,7 +4,7 @@ import '../styles/globals.scss'
 import Head from "next/head";
 import Link from "next/link";
 import {Provider} from "react-redux";
-import store from '../redux/store.ts'
+import store from '../redux/store'
 
 
 function BlackjackApp({Component, pageProps}) {

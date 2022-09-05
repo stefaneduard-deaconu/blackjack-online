@@ -1,12 +1,9 @@
-import Head from 'next/head'
-
 import styles from '../../styles/Match.module.scss'
-import appStyles from '../../styles/BlackjackApp.module.scss'
 
 import Image from "next/image";
 
 import {useDispatch, useSelector} from "react-redux";
-import RootStore from '../../redux/store'
+import {RootStore} from '../../redux/store'
 
 import {useState, useEffect} from "react";
 
@@ -17,15 +14,8 @@ import {
     PlayerOption, MatchOption,
     PlayerType
 } from "../../redux/actions/MatchActionTypes";
-import {
-    isBlackjack,
-    isOptionAvailable,
-    PLAYER_OPTION_KEYS,
-    playerHasBUST,
-    playerHasSplit
-} from "../../redux/reducers/matchReducer";
 
-const socket = io.connect("http://localhost:3001")
+const socket = io("http://localhost:3001", {transports: ["websocket"]})
 
 
 export default function Game() {
@@ -47,7 +37,7 @@ export default function Game() {
             console.log(data)
 
             setJoinedMatch(data.joinedId)
-            // TODO what will happend when refreshing the browser? :(
+            // TODO what will happened when refreshing the browser? :(
 
             setWaitingPlayer(data.waiting)
         })
@@ -88,9 +78,9 @@ export default function Game() {
     const matchState: MatchType = useSelector((state: RootStore) => state.match.match);
     const currentPlayer: PlayerType = useSelector(
         (state: RootStore) => (
-            state.match.currentPlayer == 0
-                ? state.match.player1
-                : state.match.player2
+            state.match.match.currentPlayer == 0
+                ? state.match.match.player1
+                : state.match.match.player2
         )
     );
 
@@ -137,7 +127,7 @@ export default function Game() {
                                 <p>Our option: {option}</p>
                                 <p>Their option: {rivalOption}</p>
 
-                                <ul type={'none'}>
+                                <ul style={{listStyleType: 'none'}}>
                                     {/* TODO add filtering, based on whether the option is available.. so we need to store whether the player*/}
                                     {/*  is making the first move now*/}
                                     <h2>Options for player {matchState.currentPlayer}</h2>
@@ -148,15 +138,15 @@ export default function Game() {
                                     {
                                         new Array(currentPlayer?.hands.length)
                                             .fill(0)
-                                            .map((_, index) => <button
-                                                    onClick={() => dispatch(
-                                                        {
-                                                            type: MatchOption.MATCH_HIT,
-                                                            payload: {
-                                                                hand: index
-                                                            }
-                                                        }
-                                                    )}
+                                            .map((_, index) => <button key={index}
+                                                                       onClick={() => dispatch(
+                                                                           {
+                                                                               type: MatchOption.MATCH_HIT,
+                                                                               payload: {
+                                                                                   hand: index
+                                                                               }
+                                                                           }
+                                                                       )}
                                                 >
                                                     HIT (hand {index})
                                                 </button>
@@ -187,8 +177,8 @@ export default function Game() {
                                     {/*    PLAYER_OPTION_KEYS*/}
                                     {/*        .filter(option => isOptionAvailable(option, currentPlayer))*/}
                                     {/*        .map(*/}
-                                    {/*            label => <li>*/}
-                                    {/*                <button onClick={() => setAndSendOption(label)}>{label}</button>*/}
+                                    {/*            (label, index) => <li>*/}
+                                    {/*                <button  key={index} onClick={() => setAndSendOption(label)}>{label}</button>*/}
                                     {/*            </li>*/}
                                     {/*        )*/}
                                     {/*}*/}
@@ -207,8 +197,9 @@ export default function Game() {
                                     <h2>Player 0 (bet={matchState.player1.bet})</h2>
                                     <ul>
                                         {
-                                            matchState.player1.hands.map((hand) => <li>
-                                                {hand.map(card => <li>{card.house} {card.number}</li>)}
+                                            matchState.player1.hands.map((hand, index) => <li key={index}>
+                                                {hand.map((card, index) => <li
+                                                    key={index}>{card.house} {card.number}</li>)}
                                             </li>)
                                         }
                                     </ul>
@@ -219,8 +210,9 @@ export default function Game() {
                                     <h2>Player 1 (bet={matchState.player2.bet})</h2>
                                     <ul>
                                         {
-                                            matchState.player2.hands.map((hand) => <li>
-                                                {hand.map(card => <li>{card?.house} {card?.number}</li>)}
+                                            matchState.player2.hands.map((hand, index) => <li key={index}>
+                                                {hand.map((card, index) => <li
+                                                    key={index}>{card?.house} {card?.number}</li>)}
                                             </li>)
                                         }
                                     </ul>

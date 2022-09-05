@@ -4,6 +4,7 @@ import {
     CardNumber,
     DealerType,
     MatchDispatchTypes,
+    MatchOption,
     MatchType,
     PlayerOption,
     PlayerType
@@ -281,7 +282,7 @@ const matchAfterHIT = (state: DefaultStateI, hand: number): MatchType => {
     player.hands[hand].push(drawedCard)
     // does the hand sums up to more than 21?
     if (isBust(player.hands[hand])) {
-        player.state = 'LOST'
+        player.lastOption = PlayerOption.BUST
         // move to next player
         // draw can be called for 0 and 1, so we just add one
         match.currentPlayer += 1
@@ -304,22 +305,38 @@ const pokemonReducer = (state: DefaultStateI, action: MatchDispatchTypes): Defau
 
 
     switch (action.type) {
-        case "MATCH_START_GAME":
+        case MatchOption.MATCH_START_GAME:
             return {
                 match: generateInitialMatch()
             }
-        case "MATCH_HIT":
+        case MatchOption.MATCH_HIT:
             return {
                 match: matchAfterHIT(state, action.payload.hand)
             }
-        case "MATCH_STAND":
-            return {
-                match: matchAfterSplit(state,)
-            }
-        case "MATCH_SPLIT":
-            return {
-                match: matchAfterSplit(state,)
-            }
+        case MatchOption.MATCH_STAND:
+        // return {
+        //     match: matchAfterSplit(state,)
+        // }
+        case  MatchOption.MATCH_SPLIT:
+        // return {
+        //     match: matchAfterSplit(state,)
+        // }
+        case  MatchOption.MATCH_DOUBLE:
+        // return {
+        //     match: matchAfterSplit(state,)
+        // }
+        case MatchOption.MATCH_SURRENDER:
+        // return {
+        //     match: matchAfterSplit(state,)
+        // }
+        case  MatchOption.MATCH_INSURANCE:
+        // return {
+        //     match: matchAfterSplit(state,)
+        // }
+        case  MatchOption.MATCH_DEALERS_TURN:
+            // return {
+            //     match: matchAfterSplit(state,)
+            // }
         default:
             return state;
     }

@@ -1,10 +1,8 @@
 import {Dispatch} from "redux";
 import {
-    MATCH_START_GAME, MATCH_HIT, MATCH_DOUBLE, MATCH_STAND,
     MatchDispatchTypes
 } from "./MatchActionTypes";
 
-import axios from 'axios';
 
 // TODO use all dispatch variant for building up useful functions.
 //  it's not NECESSARY

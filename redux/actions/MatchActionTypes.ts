@@ -74,8 +74,9 @@ export type MatchType = {
 
 
 export interface MatchStartGame {
-    type: MatchOption
     // take into account doubling the hand when starting the game :)
+    type: MatchOption,
+    payload: null
 }
 
 
@@ -98,25 +99,29 @@ export interface MatchDouble {
 }
 
 export interface MatchSplit {
-    type: MatchOption
+    type: MatchOption,
+    payload: null
 }
 
 export interface MatchSurrender {
     // Give up on the current cards, and keep 50% of the bets
-    type: MatchOption
+    type: MatchOption,
+    payload: null
 }
 
 export interface MatchInsurance {
-    type: MatchOption
     // WHEN THE DEALER HAS AN Ace, the player bets whether the Dealer has Blackjack. And they gan get back 250%
-}
+    type: MatchOption,
+    payload: null
+    }
 
 export interface MatchDealersTurn {
-    type: MatchOption
+    type: MatchOption,
+    payload: null
 }
 
 
 // dispatch types:
 
-export type MatchDispatchTypes = MatchStartGame | MatchHit | MatchDouble | MatchSplit;
+export type MatchDispatchTypes = MatchStartGame | MatchHit |  MatchStand| MatchDouble | MatchSplit | MatchSurrender | MatchInsurance | MatchDealersTurn  ;
 

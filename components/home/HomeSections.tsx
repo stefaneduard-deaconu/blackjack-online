@@ -26,7 +26,7 @@ const HomeSections = () => {
     return (
         <div className={styles.sections}>
             {
-                sections.map((data, idx) => <HomeSection key={idx} {...data} />)
+                sections.map((data, index) => <HomeSection key={index} {...data} />)
             }
         </div>
     )
